@@ -1,0 +1,80 @@
+micronaut:
+  application:
+    name: demoproject
+  server:
+    context-path: /api/v1
+    port: ${SERVICE_PORT}
+    cors:
+      enabled: true
+
+    intercept-url-map:
+      - pattern: ${micronaut.server.context-path}/spec/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: ${micronaut.server.context-path}/docs/**
+        http-method: GET
+        access:
+          - isAnonymous()
+
+  router:
+    static-resources:
+      swagger:
+        enabled: true
+        paths: classpath:META-INF/swagger
+        mapping: ${micronaut.server.context-path}/spec/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: ${micronaut.server.context-path}/docs/**
+  data:
+    paging:
+      max-page-size: 100
+      default-page: 0
+
+mongodb:
+  uri: ${DATABASE_HOST}
+  options:
+    maxConnectionIdleTime: 10000
+    readConcern: majority
+
+---
+service:
+  datastore:
+    name: ${DATABASE_NAME}
+    collection-prefix: ${COLLECTION_NAME_PREFIX}
+  tracing:
+    request-id: ${random.shortuuid}
+
+---
+configs:
+  mobile:
+    confirmation:
+      min: ${CONFIRMATION_MIN}
+      max: ${CONFIRMATION_MAX}
+    expiration:
+      hours: ${EXPIRY_HOURS}
+  parcel:
+    collection:
+      expiration:
+        hours: ${COLLECTION_HOURS}
+
+---
+endpoints:
+  all:
+    enabled: false
+    sensitive: false
+    path: admin
+  health:
+    enabled: true
+  stop:
+    enabled: true
+
+jackson:
+  time-zone: SAST
+  locale: en_ZA
+  date-format: yyyy/MM/dd
+  serialization:
+    FAIL_ON_EMPTY_BEANS: false
+
+
+
